@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT RSA256 API with Ermis Chat</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+            font-weight: 500;
+        }
+        .api-info {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .step-container {
+            border: 1px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        .step-container:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #d0d0d0;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .key-widget {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            position: relative;
+        }
+        .key-widget pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+        
+        
+        .endpoints {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .endpoints li {
+            margin-bottom: 8px;
+        }
+        .success-message {
+            color: #2ecc71;
+            margin-top: 10px;
+            font-weight: 500;
+            display: none;
+        }
+
+        textarea#payload-input, 
+        textarea#options-input {
+            text-align: left !important;
+            padding-left: 10px !important;
+            font-family: 'Courier New', monospace !important;
+            white-space: pre !important;
+            text-indent: 0 !important;
+            margin-left: 0 !important;
+            line-height: 1.5 !important;
+        }
+
+        .code-sample {
+            background: #f5f7fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .code-sample pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            tab-size: 4;
+        }
+        
+        .code-sample code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .try-it-out {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .installation-guide {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .installation-guide h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .code-tabs {
+            margin: 15px 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: -1px;
+        }
+        
+        .tab-btn {
+            padding: 8px 15px;
+            background: #e0e0e0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab-btn.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: #282c34;
+            padding: 15px;
+            border-radius: 0 5px 5px 5px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        pre code {
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            background-color: #000000;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 6px;
+            display: block;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="api-info">
+            <h1>JWT RSA256 API</h1>
+            <p><strong>Version:</strong> 1.0.0</p>
+            <p>API để tạo và xác thực JWT tokens sử dụng thuật toán RSA256</p>
+            
+            <div class="endpoints">
+                <h2>Endpoints:</h2>
+                <ul>
+                    <li><a href="/api-docs" target="_blank">/api-docs</a> - Swagger Documentation (Bạn có thể tự tạo ra cặp khoá và jwt bằng cách của bạn hoặc có thể làm theo docs)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 1 Component -->
+        <div class="step-container" id="step1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <h2>Tạo cặp khoá Private và Public</h2>
+            </div>
+            <p>Tạo cặp khoá RSA256 để sử dụng cho việc ký và xác thực JWT tokens.</p>
+            <p>Sau khi tạo thành công cặp khoá, <b>hãy giữ lại private key</b>, và gửi public key cho ermis team</p>
+            <p>Nếu bạn tạo cặp khoá qua api-docs thì cặp khoá sẽ lưu trữ trong thư mục <b>keys</b> của project</p>
+            <i>Example:</i>
+            
+            <div class="key-widget">
+                <h3>Private Key</h3>
+                <pre id="private-key">-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDqSnraq7593CgC
+Aeh4HPVGH7zpcyglbG7OTmE1nlYhR1F71Y+eWJWOAZvoIULiPTNtzNgKIPXkc/sJ
+GQQiX7OYDASO7h0+kcELWKLbx78WJSaddHXRXCwzReKaXo9qN+ZTEiEToPrcDYae
+piLB52pu1Lgob+SQHdmXABjQn887AnOLMxBr9LVHHG7QQF0/lPltcizCPisgboOg
++rBmEo8LnmAWovA3mlX3m6ihTPqc52HzFP4zGemqIWeG1UL19auOjD8WNwa/4x8a
+TqDkKDtKMIinJ1qDCrMxJh39hNrL33ARi+JYdOQ9MYi55OKar/pD7R8jG6yVsjPJ
+vAtlmtL7AgMBAAECggEAZeAG9aiyRyYA24aa4Aeve1N3oIcrUMKKl/iq+lakGwpY
+2yDstyzLsxjuAwzbeWalQzxMQHM+mJz57mXLT2sPu7CWFtRhMQDN0TI0dp6vb2Cu
+Hs8yH9wVeCIOO5OchtJRu5NpgJCCJEdZXwjcmjYXKKQkg6jL2QKxx6AKKkUjJgPA
+woUEkyMCCfwUHuoKg8tRWTMt+nlO2C8Nzk281L84HX2DSaflwYid9nmmMzlh5x2g
+MQL9weBOB4UBLtpX0o43L6y+wkfPPy9vWdQKx+w6XId1ukTI+UfzVZ0tMK0bWlZl
+2iGc6ngnb5UpJG+xu9k920NyfchIhZSJZuOBvZQpqQKBgQD9IRD/MbNGg5Uyk9ex
+qKStAF9lcGdjnP8Pyqenx1fqnw3Xmhjsvt7FQyPEuUsySeqhzGZVlOZbZUo8j81l
+NGVkuiS+mAnEIdk+KeBrsKv2IMvjxTc4MK/uUT3ouHBBHh/uvcqoL12AVr+CYWb6
+NiNYP/VoXqfJC7Up5ql1XRyOlwKBgQDs8rf9jXIVz2mJBGVZ/q401LywZav4d/JO
+CCaAcf3Eer5lOaELFe4MKbtuLhAzIeEYz8HZasC9XtaRkNAXWX/gFBsxaWk6ipMM
+5s5FVesx1ONMerbRWoxQ4oaPbbf9evVJf+LVa3782E8lC6rQdMO9XYwhg90y0ZqE
+j33qAl4PPQKBgQC/lf5qWHCrRz5uiI2xrsXtFyIdAeWO9K3sguNATtXRA8+TRtPk
+pFayES4KYIB0sJOBINa3obp0pIZ6rhC0r+KqSWU0SJjjtQbbURDGEXMmGA6Z95Pi
+2J7gDud/s9Fqx+U9arLvduIbGA1dHmG1sbIwwj/5XeM6fL0C2M2bwfyyQwKBgQDG
+9dAU8c5YDf9589z+wmGZLwD5xYWvb1hguWtK82y4rLBu4wMdAd8PC4O8sqUbqlkO
+snT9kSwiVx4owMZatOYxS/DBftfDNlTfwnZ1tf11rGLn9yrHhBbKXEvM575U9Ag/
+HUllF4xb124tlyxpOYKa4ZAnHEiCwYnTwYFjG3XLqQKBgFz5wfc+9miKSTDzCs9+
+/lbsWy0LjrtGk0Aoy8RHkhJ+THviXAL4oaOCybn/C/geDzdzCe45j9nS3DsWLEBM
+cfKIzzbGRDJtSovpCXAnBVrB3thNmRiEHbKnWn/kZm7/ypGW2uTaYX5PoSyxaYlc
+2dMV/Rw2JxpAJ2VlDK+soBeK
+-----END PRIVATE KEY-----</pre>
+            </div>
+            
+            <div class="key-widget">
+                <h3>Public Key</h3>
+                <pre id="public-key">-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6kp62qu+fdwoAgHoeBz1
+Rh+86XMoJWxuzk5hNZ5WIUdRe9WPnliVjgGb6CFC4j0zbczYCiD15HP7CRkEIl+z
+mAwEju4dPpHBC1ii28e/FiUmnXR10VwsM0Ximl6PajfmUxIhE6D63A2GnqYiwedq
+btS4KG/kkB3ZlwAY0J/POwJzizMQa/S1Rxxu0EBdP5T5bXIswj4rIG6DoPqwZhKP
+C55gFqLwN5pV95uooUz6nOdh8xT+MxnpqiFnhtVC9fWrjow/FjcGv+MfGk6g5Cg7
+SjCIpydagwqzMSYd/YTay99wEYviWHTkPTGIueTimq/6Q+0fIxuslbIzybwLZZrS
++wIDAQAB
+-----END PUBLIC KEY-----</pre>
+            </div>
+        </div>
+
+        <!-- Step 2 Component -->
+        <div class="step-container" id="step2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h2>Gửi Public Key cho Ermis Team</h2>
+            </div>
+            <p>Gửi <b>public key</b> trên cho đội ngũ Ermis, chúng tôi sẽ cung cấp cho bạn <b>apikey</b> & <b>productId</b>.</p>
+            <i>Example:</i>
+            <div class="key-widget">
+                <h3>apikey</h3>
+                <pre id="apikey">o34mgEEjujNGbhhDzZSvTe4HfoxhHEfU</pre>
+            </div>
+            <div class="key-widget">
+                <h3>ProductId</h3>
+                <pre id="apikey">o34mgEEjujNGbhhDzZSvTe4HfoxhHEfU</pre>
+            </div>
+        </div>
+
+        <!-- Step 3 Component -->
+        <div class="step-container" id="step3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <h2>Tạo JWT Token</h2>
+            </div>
+            <p>Sử dụng <b>private key</b> để tạo JWT token với payload chứa thông tin người dùng.</p>
+            <i>Example:</i>
+            <div class="code-sample">
+                <h3>Code mẫu (Node.js)</h3>
+                <pre>
+                    <code class="language-javascript">
+                        // 1. Import thư viện
+                        const jwt = require('jsonwebtoken');
+                        const fs = require('fs');
+
+                        // 2. Đọc private key
+                        const privateKey = fs.readFileSync('private.key');
+
+                        // 3. Tạo payload
+                        const payload = {
+                            user_id: "12345",
+                            username: "example_user",
+                            role: "admin",
+                            iat: Math.floor(Date.now() / 1000), // Thời gian tạo
+                            exp: Math.floor(Date.now() / 1000) + (60 * 60) // Hết hạn sau 1 giờ
+                        };
+
+                        // 4. Tạo token
+                        const token = jwt.sign(payload, privateKey, {
+                            algorithm: 'RS256',
+                            issuer: 'your-issuer'
+                        });
+
+                        console.log('JWT Token:', token);
+                    </code>
+                </pre>
+            </div>
+            <div class="try-it-out">
+                <h3>Thử nghiệm ngay</h3>
+                <div class="form-group">
+                    <label for="payload-input">Payload (JSON):</label>
+                    <textarea id="payload-input" rows="6" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                        {
+                            "user_id": "12345",
+                            "username": "example_user",
+                            "role": "admin"
+                        }
+                    </textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="options-input">Options (JSON):</label>
+                    <textarea id="options-input" rows="6" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                        {
+                            "algorithm": "RS256",
+                            "expiresIn": "24h",
+                            "issuer": "jwt-rsa256-api"
+                        }
+                    </textarea>
+                </div>
+                
+                <button class="action-btn" onclick="generateJwt()">Tạo JWT Token</button>
+            </div>
+            
+            <div class="key-widget" id="jwt-token-container" style="display: none;">
+                <h3>JWT Token</h3>
+                <button class="copy-btn" onclick="copyToClipboard('jwt-token')">Copy</button>
+                <pre id="jwt-token"></pre>
+                <div class="token-info">
+                    <i>Trạng thái: <span id="token-status" class="token-valid">Còn hiệu lực</span></i>
+                    <br>
+                    <i>Hết hạn: <span id="token-expiry"></span></i>
+                </div>
+                <div class="success-message" id="jwt-token-copied">Đã copy JWT token!</div>
+            </div>
+        </div>
+
+        <!-- Step 4 Component -->
+        <div class="step-container" id="step4">
+            <div class="step-header">
+                <div class="step-number">4</div>
+                <h2>Khởi tạo Ermis Chat</h2>
+            </div>
+            <p>Sử dụng JWT token để khởi tạo Ermis Chat trong ứng dụng của bạn.</p>
+            <div class="installation-guide">
+                <h3>1. Yêu cầu trước khi cài đặt</h3>
+                <p>Bạn cần có:</p>
+                <ul>
+                    <li>API Key từ Ermis Team</li>
+                    <li>Project ID từ Ermis Team</li>
+                </ul>
+                
+                <h3>2. Cài đặt SDK</h3>
+                <div class="code-tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab('npm-install')">npm</button>
+                        <button class="tab-btn" onclick="openTab('yarn-install')">yarn</button>
+                    </div>
+                    
+                    <div id="npm-install" class="tab-content active">
+                        <pre><code class="language-bash" style="color: #dcdcaa;">$ npm install ermis-chat-js-sdk</code></pre>
+                    </div>
+                    
+                    <div id="yarn-install" class="tab-content">
+                        <pre><code class="language-bash" style="color: #dcdcaa;">$ yarn add ermis-chat-js-sdk</code></pre>
+                    </div>
+                </div>
+                
+                <h3>3. Khởi tạo SDK</h3>
+                <pre>
+                    <code class="language-javascript">
+                        import { ErmisChat } from 'ermis-chat-js-sdk';
+        
+                        // Cấu hình tuỳ chọn
+                        const options = {
+                            timeout: 6000, // Thời gian chờ kết nối (ms)
+                            baseURL: 'https://your-api-domain.com', // Địa chỉ API server
+                        };
+                        
+                        // Tạo instance chat client
+                        const chatClient = ErmisChat.getInstance(API_KEY, PROJECT_ID, options);
+                    </code>
+                </pre>
+                <h3>4. Kết nối người dùng</h3>
+                <pre>
+                    <code class="language-javascript">
+                        // Sau khi có token generated by private key và user_id
+                        await chatClient.connectUser(
+                        {
+                            api_key: API_KEY,  
+                            id: user_id,  
+                            name: user_id 
+                        },
+                        token // JWT token từ bước 3,
+                        true // external auth flag
+                        );
+                    </code>
+                </pre>
+            </div>
+            
+            <div class="try-it-out">
+                <h3>Thử nghiệm ngay</h3>
+                <button class="action-btn" onclick="initChat()">Khởi tạo Chat</button>
+                <div id="chat-container" style="margin-top: 20px; height: 40px; border: 1px solid #ddd;"></div>
+                <div class="success-message" id="chat-initiated"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        async function generateJwt() {
+            try {
+                const payloadInput = document.getElementById('payload-input').value;
+                const optionsInput = document.getElementById('options-input').value;
+
+                let payload, options;
+
+                try {
+                    payload = JSON.parse(payloadInput);
+                    options = JSON.parse(optionsInput);
+                } catch (e) {
+                    alert("Lỗi: Payload hoặc Options không phải JSON hợp lệ");
+                    return;
+                }
+
+                const response = await fetch(
+                    '/api/jwt/create',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ payload, options }),
+                    }
+                );
+
+                const result = await response.json();
+
+
+                if (result.success) {
+
+                    document.getElementById('jwt-token').textContent = result.token;
+                    document.getElementById('jwt-token-container').style.display = 'block';
+
+                    const decoded = jwt_decode(result.token);
+                    const expiryTime = decoded.exp ? decoded.exp * 1000 : null;
+
+                    if (expiryTime) {
+                        localStorage.setItem(
+                            'jwtTokenData', JSON.stringify({
+                                token: result.token,
+                                expiry: expiryTime,
+                                payload: result.payload,
+                                options: result.options
+                            })
+                        );
+
+                        document.getElementById('token-expiry').textContent = new Date(expiryTime).toLocaleString();
+                        document.getElementById('token-status').textContent = 'Còn hiệu lực';
+                        document.getElementById('token-status').className = 'token-valid';
+                        
+                        setTimeout(() => {
+                            document.getElementById('token-status').textContent = 'Đã hết hạn';
+                            document.getElementById('token-status').className = 'token-expiry';
+                            localStorage.removeItem('jwtTokenData');
+                        }, expiryTime - new Date().getTime());
+                    }
+                    
+                } else {
+                    alert('Lỗi khi tạo token: ' + (result.error || 'Lỗi không xác định'));
+                }
+
+            } catch (e) {
+                console.error('Error', e);
+                alert('Lỗi khi tạo token: ' + e.message);
+            }
+        }
+
+        function checkTokenExpiry(expiryTime) {
+            if (!expiryTime) return true;
+            return new Date().getTime() < expiryTime;
+        }
+
+        function loadTokenFromStorage() {
+            const tokenData = localStorage.getItem('jwtTokenData');
+            if (!tokenData) return;
+
+            const { token, expiry } = JSON.parse(tokenData);
+            
+            if (checkTokenExpiry(expiry)) {
+                document.getElementById('jwt-token').textContent = token;
+                document.getElementById('jwt-token-container').style.display = 'block';
+                document.getElementById('token-expiry').textContent = new Date(expiry).toLocaleString();
+                
+                // Kiểm tra định kỳ
+                const checkInterval = setInterval(() => {
+                    if (!checkTokenExpiry(expiry)) {
+                        clearInterval(checkInterval);
+                        document.getElementById('token-status').textContent = 'Đã hết hạn';
+                        document.getElementById('token-status').className = 'token-expiry';
+                        localStorage.removeItem('jwtTokenData');
+                    }
+                }, 60000);
+            } else {
+                localStorage.removeItem('jwtTokenData');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTokenFromStorage);
+
+        // Hàm copy nội dung
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const range = document.createRange();
+            range.selectNode(element);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            
+            // Hiển thị thông báo
+            const messageElement = document.getElementById(`${elementId}-copied`);
+            if (messageElement) {
+                messageElement.style.display = 'block';
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        // Hàm chuyển tab
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+    
+    <script>
+        // Hàm khởi tạo chat
+        async function initChat() {
+            try {
+                // Lấy JWT token từ server
+                const tokenData = localStorage.getItem('jwtTokenData');
+                if (!tokenData) {
+                    throw new Error('Không tìm thấy token trong localStorage. Vui lòng tạo JWT token trước.');
+                }
+                const { token, payload } = JSON.parse(tokenData);
+                const user_id = payload?.user_id;
+                if (!token || !user_id) {
+                    throw new Error('Token hoặc user_id không hợp lệ.');
+                }
+
+                // Kiểm tra token có còn hiệu lực không
+                if (!checkTokenExpiry(payload.exp * 1000)) {
+                    throw new Error('Token đã hết hạn. Vui lòng tạo token mới.');
+                }
+                const connectResponse = await fetch('/api/chat/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id, token }),
+                });
+                const { success, message, error } = await connectResponse.json();
+
+                if (success) {
+                    document.getElementById('chat-container').innerHTML = `
+                        <div class="success-message" style="display: block;">
+                            ${message || 'User connected to Ermis Chat'}
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        document.getElementById('chat-container').innerHTML = '';
+                    }, 3000);
+                } else {
+                    throw new Error(error || 'Không thể kết nối người dùng');
+                }
+
+            } catch (error) {
+                console.error('Lỗi khi kết nối Ermis Chat:', error);
+                document.getElementById('chat-container').innerHTML = `<p>Lỗi: ${error.message}</p>`;
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+</body>
+</html>
