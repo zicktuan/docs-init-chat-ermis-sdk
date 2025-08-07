@@ -292,12 +292,6 @@ Sau khi tạo cặp khóa RSA (public key và private key), bạn cần thực h
   token // JWT token từ bước 3,
   true // external auth flag
   );
-  - Trong đó:
-    - `apikey`: Bắt buộc, do Ermis Team cung cấp
-    - `project_id`: Bắt buộc, do Ermis Team cung cấp
-    - `name`: Tùy chọn, truyền hoặc không truyền
-    - `avatar`: Tùy chọn, truyền hoặc không truyền
-    - Header `Authorization`: Truyền JWT vừa tạo ở bước trên (dạng Bearer)
 
 - **Response** trả về thông báo thành công, bạn có thể sử dụng các dịch vụ tiếp theo của Ermis.
 
